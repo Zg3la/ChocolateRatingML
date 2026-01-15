@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang=" mockingbird">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title> Chocolate Rating Predictor</title>
+
+    <style>
+        :root{
+            --bg1:#1b0f0a;
+            --bg2:#2a150d;
+            --card:#ffffff;
+            --choco:#6b3e26;
+            --choco2:#8b5a3c;
+            --cream:#f6efe8;
+            --text:#2b1a12;
+            --shadow: 0 18px 45px rgba(0,0,0,.35);
+        }
+
+        *{ box-sizing:border-box; }
+
+        body{
+            margin:0;
+            font-family: Arial, sans-serif;
+            color: var(--text);
+            min-height:100vh;
+            overflow-x:hidden;
+            background:
+                radial-gradient(900px 500px at 10% 10%, rgba(255,255,255,.10), transparent 60%),
+                radial-gradient(900px 500px at 90% 20%, rgba(255,255,255,.08), transparent 55%),
+                radial-gradient(900px 500px at 30% 90%, rgba(255,255,255,.07), transparent 55%),
+                linear-gradient(135deg, var(--bg1), var(--bg2));
+        }
+
+        
+        .sprinkles{
+            position:fixed;
+            inset:0;
+            pointer-events:none;
+            overflow:hidden;
+            z-index:0;
+        }
+        .dot{
+            position:absolute;
+            width:6px; height:6px;
+            border-radius:50%;
+            background: rgba(246,239,232,.25);
+            animation: floatUp linear infinite;
+            opacity:0;
+        }
+        @keyframes floatUp{
+            0% { transform: translateY(25px) translateX(0); opacity: 0; }
+            15%{ opacity:.55; }
+            50%{ opacity:.35; }
+            100%{ transform: translateY(-120vh) translateX(40px); opacity: 0; }
+        }
+
+        
+        .wrap{
+            position:relative;
+            z-index:1;
+            max-width: 980px;
+            margin: 36px auto;
+            padding: 0 16px;
+            display:grid;
+            grid-template-columns: 1.4fr .9fr;
+            gap: 18px;
+            align-items:start;
+        }
+        @media (max-width: 920px){
+            .wrap{ grid-template-columns: 1fr; }
+        }
+
+        .card{
+            background: rgba(255,255,255,.92);
+            border: 1px solid rgba(255,255,255,.35);
+            backdrop-filter: blur(6px);
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            padding: 22px;
+            transform: translateY(8px);
+            opacity:0;
+            animation: popIn .7s ease forwards;
+        }
+        @keyframes popIn{
+            to { transform: translateY(0); opacity:1; }
+        }
+
+        .side{
+            display:flex;
+            flex-direction:column;
+            gap:18px;
+        }
+
+        .title{
+            display:flex;
+            align-items:center;
+            justify-content:flex-start;
+            gap:12px;
+            margin-bottom: 6px;
+        }
+        h2{
+            margin:0;
+            font-size: 22px;
+            letter-spacing:.2px;
+        }
+
+        label{
+            font-weight: bold;
+            display:block;
+            margin-top: 14px;
+            margin-bottom: 6px;
+        }
+
+        input[type="text"]{
+            width:100%;
+            padding: 10px 12px;
+            border-radius: 10px;
+            border: 1px solid rgba(43,26,18,.18);
+            background: rgba(255,255,255,.95);
+            outline:none;
+            transition: border-color .12s ease, box-shadow .12s ease, transform .12s ease;
+        }
+        input[type="text"]:focus{
+            border-color: rgba(107,62,38,.55);
+            box-shadow: 0 0 0 4px rgba(107,62,38,.12);
+            transform: translateY(-1px);
+        }
+
+        
+        .rangeRow{
+            display:flex;
+            align-items:center;
+            gap: 12px;
+            width:100%;
+        }
+        input[type="range"]{
+            flex: 1 1 auto;
+            width: 100%;
+            accent-color: var(--choco);
+            margin: 6px 0 0;
+        }
+        .rangeVal{
+            flex: 0 0 auto;
+            min-width: 70px;
+            text-align:right;
+            font-weight:bold;
+            color:#3a2318;
+            white-space:nowrap;
+        }
+        output{
+            min-width: 34px;
+            display:inline-block;
+            text-align:right;
+        }
+
+        button{
+            margin-top: 18px;
+            padding: 12px;
+            width:100%;
+            background: linear-gradient(180deg, var(--choco2), var(--choco));
+            color:white;
+            border:none;
+            border-radius: 12px;
+            font-size: 16px;
+            cursor:pointer;
+            box-shadow: 0 12px 25px rgba(107,62,38,.28);
+            transition: transform .12s ease, filter .12s ease;
+        }
+        button:hover{ transform: translateY(-1px); filter: brightness(1.04); }
+        button:active{ transform: translateY(1px); }
+
+        .result{
+            margin-top: 18px;
+            padding: 14px;
+            background: rgba(232,255,232,.95);
+            border: 1px solid rgba(0,0,0,.06);
+            border-radius: 12px;
+            text-align:center;
+            font-size: 18px;
+            animation: glow 1.4s ease-in-out infinite alternate;
+        }
+        @keyframes glow{
+            from { box-shadow: 0 0 0 rgba(0,0,0,0); }
+            to   { box-shadow: 0 10px 30px rgba(46,156,71,.18); }
+        }
+
+        .miniTitle{
+            margin:0 0 10px;
+            font-size: 14px;
+            letter-spacing: .3px;
+            text-transform: uppercase;
+            color: rgba(43,26,18,.75);
+        }
+        .fact{
+            background: rgba(255,255,255,.92);
+            border: 1px solid rgba(255,255,255,.35);
+            backdrop-filter: blur(6px);
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            padding: 18px;
+            opacity:0;
+            transform: translateY(10px);
+            animation: popIn .7s ease .12s forwards;
+        }
+        .factBox{
+            border-radius: 14px;
+            background: linear-gradient(135deg, rgba(107,62,38,.10), rgba(246,239,232,.65));
+            border: 1px solid rgba(107,62,38,.18);
+            padding: 14px;
+            position:relative;
+            overflow:hidden;
+        }
+        .factText{
+            position:relative;
+            margin:0;
+            line-height:1.35;
+            font-size: 14px;
+        }
+        .factMeta{
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            margin-top: 10px;
+            font-size:12px;
+            color: rgba(43,26,18,.7);
+        }
+        .pill{
+            display:inline-flex;
+            gap:8px;
+            align-items:center;
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: rgba(107,62,38,.10);
+            border: 1px solid rgba(107,62,38,.20);
+        }
+
+        .drip{
+            height: 12px;
+            width:100%;
+            background:
+                radial-gradient(14px 12px at 10% 0%, rgba(107,62,38,.85), transparent 60%),
+                radial-gradient(16px 12px at 30% 0%, rgba(107,62,38,.75), transparent 60%),
+                radial-gradient(18px 12px at 55% 0%, rgba(107,62,38,.80), transparent 60%),
+                radial-gradient(15px 12px at 80% 0%, rgba(107,62,38,.70), transparent 60%);
+            opacity:.45;
+            margin: 10px 0 0;
+            border-radius: 12px;
+        }
+
+        .note{
+            font-size: 12px;
+            color: rgba(246,239,232,.75);
+            text-align:center;
+            margin: 18px 0 28px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="sprinkles" aria-hidden="true" id="sprinkles"></div>
+
+<div class="wrap">
+    <div class="card">
+        <div class="title">
+            <h2> Chocolate Rating Predictor</h2>
+        </div>
+        <div class="drip"></div>
+
+        <form method="POST" style="margin-top:10px;">
+            {% csrf_token %}
+
+            <label>Company</label>
+            <input type="text" name="company" list="companies_list" required>
+            <datalist id="companies_list">
+                {% for c in companies %}
+                    <option value="{{ c }}">
+                {% endfor %}
+            </datalist>
+
+            <label>Company Location</label>
+            <input type="text" name="company_location" list="locations_list" required>
+            <datalist id="locations_list">
+                {% for l in locations %}
+                    <option value="{{ l }}">
+                {% endfor %}
+            </datalist>
+
+            <label>Bean Origin (Country of Bean Origin)</label>
+            <input type="text" name="bean_origin" list="bean_origins_list" required>
+            <datalist id="bean_origins_list">
+                {% for b in bean_origins %}
+                    <option value="{{ b }}">
+                {% endfor %}
+            </datalist>
+
+            <label>Bar Name / Specific Origin</label>
+            <input type="text" name="bar_name" list="bar_names_list" required>
+            <datalist id="bar_names_list">
+                {% for bn in bar_names %}
+                    <option value="{{ bn }}">
+                {% endfor %}
+            </datalist>
+
+            <label>Ingredients (optional)</label>
+            <input type="text" name="ingredients" list="ingredients_list">
+            <datalist id="ingredients_list">
+                {% for ing in ingredients_list %}
+                    <option value="{{ ing }}">
+                {% endfor %}
+            </datalist>
+
+            <label>Most Memorable Characteristics (flavor) (optional)</label>
+            <input type="text" name="characteristics" list="characteristics_list">
+            <datalist id="characteristics_list">
+                {% for ch in characteristics_list %}
+                    <option value="{{ ch }}">
+                {% endfor %}
+            </datalist>
+
+            <label>Cocoa Percent</label>
+            <div class="rangeRow">
+                <input type="range" name="cocoa_percent" min="0" max="100" value="0" id="cocoa"
+                       oninput="document.getElementById('cocoaOut').value = this.value">
+                <div class="rangeVal"><output id="cocoaOut">0</output> %</div>
+            </div>
+
+            <button type="submit">Predict Rating</button>
+        </form>
+
+        {% if rating %}
+            <div class="result">
+                 Predicted rating: <b>{{ rating|floatformat:2 }}</b>
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="side">
+        <div class="fact">
+            <p class="miniTitle"> Did you know?</p>
+            <div class="factBox">
+                <p class="factText" id="factText">
+                  
+                </p>
+                <div class="factMeta">
+                    <span class="pill"> Fun fact</span>
+                    <span id="factCount">1 / 8</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="fact">
+            <p class="miniTitle">Tip</p>
+            <div class="factBox">
+                <p class="factText">
+                    A higher percentage of cocoa doesn't automatically mean better chocolate . The balance of acidity, bitterness, and aroma is key.
+                </p>
+                <div class="factMeta">
+                    
+                    <span>Try ajusting % of cocoa</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    
+    (function(){
+        const el = document.getElementById("sprinkles");
+        const count = 28;
+        for(let i=0;i<count;i++){
+            const d = document.createElement("div");
+            d.className = "dot";
+            const left = Math.random()*100;
+            const size = 3 + Math.random()*6;
+            const dur = 10 + Math.random()*18;
+            const delay = Math.random()*8;
+            const top = 110 + Math.random()*40;
+
+            d.style.left = left + "vw";
+            d.style.top = top + "vh";
+            d.style.width = size + "px";
+            d.style.height = size + "px";
+            d.style.animationDuration = dur + "s";
+            d.style.animationDelay = delay + "s";
+            el.appendChild(d);
+        }
+    })();
+
+    
+    const facts = [
+        "The origins of chocolate date back to the ancient Mesoamerican civilizations.",
+        "Cacao beans were once used as a form of currency.",
+        "The chocolate industry is worth over £100 billion.",
+        "It takes about 400 cacao beans to make a pound of chocolate.",
+        "Napoleon Bonaparte was a fan of chocolate.",
+        "There is a chocolate-themed amusement park.",
+        "The first chocolate factory in the UK was established by Joseph Fry in 1728 in Bristol.",
+        "Chocolate is considered an aphrodisiac."
+    ];
+
+    let idx = 0;
+    const factText = document.getElementById("factText");
+    const factCount = document.getElementById("factCount");
+
+    
+    factText.textContent = facts[0];
+    factCount.textContent = "1 / " + facts.length;
+
+    function rotateFact(){
+        idx = (idx + 1) % facts.length;
+
+        factText.style.opacity = "0";
+        factText.style.transform = "translateY(3px)";
+
+        setTimeout(() => {
+            factText.textContent = facts[idx];
+            factCount.textContent = (idx + 1) + " / " + facts.length;
+            factText.style.opacity = "1";
+            factText.style.transform = "translateY(0)";
+        }, 220);
+    }
+
+    setInterval(rotateFact, 5500);
+</script>
