@@ -131,11 +131,12 @@ mae = mean_absolute_error(y_test, pred)
 rmse = float(np.sqrt(mean_squared_error(y_test, pred)))
 r2 = r2_score(y_test, pred)
 
-print("\n📊 Rezultati modela (TEST):")
+print("\n Rezultati modela :")
 print("MAE: ", round(mae, 3))
 print("RMSE:", round(rmse, 3))
 print("R2:  ", round(r2, 3))
 
 joblib.dump(best_model, MODEL_PATH)
 print("\n✅ Model spremljen u:")
+
 print(MODEL_PATH)
